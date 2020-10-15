@@ -33,7 +33,7 @@ class GenerateCommand extends Command
         $adapter = new RedisPubSubAdapter($this->redis);
         foreach ((new BatchGenerator())->getBatch() as $batch) {
             foreach ($batch as $event) {
-                $this->redis->rpush('queue', [json_encode($batch)]);
+                $this->redis->rpush('queue', [json_encode($event)]);
             }
             $adapter->publish('queue', 'newBatch');
 

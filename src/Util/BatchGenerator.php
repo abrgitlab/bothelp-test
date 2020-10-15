@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Util;
 
 use Generator;
@@ -35,6 +37,7 @@ class BatchGenerator
             $eventForAccountId = ++$availableAccounts[$accountId];
 
             $this->batch[] = [
+                'accountId' => $accountId,
                 'eventId' => $eventForAccountId,
                 'eventName' => 'Event ' . $eventForAccountId,
             ];

@@ -7,8 +7,5 @@ services:
     nginx:
         image: nginx:1.19.2-alpine
 
-    mysql:
-        image: mysql:8.0
-
     redis:
         image: redis:6.0.8-alpine
