@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+
+if [ ! -z $XDEBUG_HOST ]; then
+    sudo -i sed -i "s/xdebug\\.remote_host=.*/xdebug.remote_host=$XDEBUG_HOST/g" /etc/php/7.4/mods-available/xdebug.ini
+fi
+
+if [ ! -z $XDEBUG_PORT ]; then
+    sudo -i sed -i "s/xdebug\\.remote_port=.*/xdebug.remote_port=$XDEBUG_PORT/g" /etc/php/7.4/mods-available/xdebug.ini
+fi
+
+if [ ! -z $XDEBUG_IDE_KEY ]; then
+    sudo -i sed -i "s/xdebug\\.idekey=.*/xdebug.idekey=$XDEBUG_IDE_KEY/g" /etc/php/7.4/mods-available/xdebug.ini
+fi
+
+sudo -i exec "$@" --allow-to-run-as-root
