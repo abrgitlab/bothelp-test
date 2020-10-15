@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+    php_fpm:
+        container_name: bothelp_php
+        volumes:
+            - .:/var/www
+        environment:
+            - XDEBUG_HOST=192.168.1.1
+            - XDEBUG_PORT=9000
+            - PHP_IDE_CONFIG=serverName=127.0.0.1
+
+    nginx:
+        ports:
+            - "80:80"
+        volumes:
+            - .:/var/www
+            - ./docker/build/dev/nginx/symfony.conf:/etc/nginx/conf.d/default.conf
+
+    mysql:
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_USER: bothelp
+            MYSQL_PASSWORD: bothelp
+            MYSQL_DATABASE: bothelp
+            MYSQL_ROOT_PASSWORD: root
+        volumes:
+            - mysql:/var/lib/mysql
+
+    redis:
+        volumes:
+            - redis:/data
+
+volumes:
+    mysql:
+        driver: local
+    redis:
+        driver: local
