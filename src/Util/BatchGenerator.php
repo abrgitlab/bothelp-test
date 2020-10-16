@@ -39,11 +39,12 @@ class BatchGenerator
     {
         $availableAccounts = array_fill(0, self::ACCOUNTS_COUNT, 0);
 
-        $eventId = 0;
         $eventCount = 0;
         while (count($availableAccounts) > 0 && ($eventCount++) < self::MESSAGES_COUNT) {
-            $accountId = array_keys($availableAccounts)[random_int(0, count($availableAccounts) - 1)];
             $eventId = $this->redis->incr('eventId');
+
+            $accountId = array_keys($availableAccounts)[random_int(0, count($availableAccounts) - 1)];
+            $eventForAccountId = ++$availableAccounts[$accountId];
 
             $this->batch[] = [
                 'accountId' => $accountId,
@@ -55,7 +56,7 @@ class BatchGenerator
                 yield $this->batch;
             }
 
-            if ($eventId > self::MAX_MESSAGES_PER_ACCOUNT) {
+            if ($eventForAccountId > self::MAX_MESSAGES_PER_ACCOUNT) {
                 unset($availableAccounts[$accountId]);
             }
         }
