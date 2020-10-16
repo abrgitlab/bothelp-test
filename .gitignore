@@ -9,4 +9,11 @@
 /vendor/
 ###< symfony/framework-bundle ###
 
+###> phpstorm files ###
 .idea
+###< phpstorm files ###
+
+###> docker ###
+docker/data
+docker-compose.override.yaml
+###< docker ###

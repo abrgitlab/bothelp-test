@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+    php_fpm:
+        container_name: bothelp-test_php
+        volumes:
+            - .:/var/www
+
+    redis:
+        volumes:
+            - redis:/data
+
+volumes:
+    redis:
+        driver: local
