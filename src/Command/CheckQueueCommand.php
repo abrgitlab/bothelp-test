@@ -1,16 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Command;
 
-use App\Util\BatchGenerator;
 use Predis\Client;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class GenerateCommand extends Command
+class CheckQueueCommand extends Command
 {
     private Client $redis;
 
@@ -23,20 +20,15 @@ class GenerateCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('generate-data')
-            ->setDescription('Generate accounts data');
+            ->setName('check-queue')
+            ->setDescription('Check queue for emptiness');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        foreach ((new BatchGenerator($this->redis))->getBatch() as $batch) {
-            foreach ($batch as $event) {
-                $this->redis->sadd('queue', $event['accountId']);
-                $this->redis->rpush('queue:' . $event['accountId'], [json_encode($event)]);
-            }
+        $queueSize = $this->redis->scard('queue');
 
-            usleep(random_int(1, 1000));
-        }
+        $output->writeln($queueSize);
 
         return 0;
     }

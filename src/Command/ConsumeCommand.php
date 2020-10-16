@@ -35,7 +35,7 @@ class ConsumeCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (($accountId = $this->redis->lpop('queue')) !== null) {
+        if (($accountId = $this->redis->spop('queue')) !== null) {
             while (($data = $this->redis->lpop('queue:' . $accountId)) !== null) {
                 $event = json_decode($data, true);
 

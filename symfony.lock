@@ -29,12 +29,6 @@
             "config/packages/snc_redis.yaml"
         ]
     },
-    "superbalist/php-pubsub": {
-        "version": "2.0.0"
-    },
-    "superbalist/php-pubsub-redis": {
-        "version": "2.0.0"
-    },
     "symfony/cache": {
         "version": "v5.1.7"
     },
@@ -164,8 +158,5 @@
     },
     "symfony/yaml": {
         "version": "v5.1.7"
-    },
-    "wrep/daemonizable-command": {
-        "version": "3.0.0"
     }
 }
