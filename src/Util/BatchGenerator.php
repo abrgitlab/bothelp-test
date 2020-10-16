@@ -6,6 +6,7 @@ namespace App\Util;
 
 use Generator;
 use Iterator;
+use Predis\Client;
 
 class BatchGenerator
 {
@@ -14,8 +15,15 @@ class BatchGenerator
     const MAX_MESSAGES_PER_ACCOUNT = 10;
     const MAX_MESSAGES_PER_BATCH = 10;
 
+    private Client $redis;
+
     private array $batch = [];
     private int $batchSize;
+
+    public function __construct(Client $redis)
+    {
+        $this->redis = $redis;
+    }
 
     public function getBatch(): Generator
     {
@@ -32,21 +40,22 @@ class BatchGenerator
         $availableAccounts = array_fill(0, self::ACCOUNTS_COUNT, 0);
 
         $eventId = 0;
-        while (count($availableAccounts) > 0 && ($eventId++) < self::MESSAGES_COUNT) {
+        $eventCount = 0;
+        while (count($availableAccounts) > 0 && ($eventCount++) < self::MESSAGES_COUNT) {
             $accountId = array_keys($availableAccounts)[random_int(0, count($availableAccounts) - 1)];
-            $eventForAccountId = ++$availableAccounts[$accountId];
+            $eventId = $this->redis->incr('eventId');
 
             $this->batch[] = [
                 'accountId' => $accountId,
-                'eventId' => $eventForAccountId,
-                'eventName' => 'Event ' . $eventForAccountId,
+                'eventId' => $eventId,
+                'eventName' => 'Event ' . $eventId,
             ];
 
             if (count($this->batch) >= $this->batchSize) {
                 yield $this->batch;
             }
 
-            if ($eventForAccountId > self::MAX_MESSAGES_PER_ACCOUNT) {
+            if ($eventId > self::MAX_MESSAGES_PER_ACCOUNT) {
                 unset($availableAccounts[$accountId]);
             }
         }

@@ -6,13 +6,12 @@ namespace App\Command;
 
 use App\Service\ConsumeService;
 use Predis\Client;
-use Superbalist\PubSub\Redis\RedisPubSubAdapter;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
-use Wrep\Daemonizable\Command\EndlessCommand;
 
-class ConsumeCommand extends EndlessCommand
+class ConsumeCommand extends Command
 {
     private Client $redis;
     private ConsumeService $consumeService;
@@ -34,30 +33,23 @@ class ConsumeCommand extends EndlessCommand
             ->setDescription('Consume accounts data');
     }
 
-    protected function starting(InputInterface $input, OutputInterface $output): void
-    {
-        $adapter = new RedisPubSubAdapter($this->redis);
-        $this->processData();
-        $adapter->subscribe('queue', function () {
-            $this->processData();
-        });
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        return 0;
-    }
+        if (($accountId = $this->redis->lpop('queue')) !== null) {
+            while (($data = $this->redis->lpop('queue:' . $accountId)) !== null) {
+                $event = json_decode($data, true);
 
-    private function processData(): void
-    {
-        while (($data = $this->redis->lpop('queue')) !== null) {
-            $event = json_decode($data, true);
+                try {
+                    $this->consumeService->processEvent($event);
 
-            try {
-                $this->consumeService->processEvent($event);
-            } catch (Throwable $e) {
-                $this->redis->lpush('queue', $event);
+                    $output->writeln('Account id: ' . $event['accountId'] . ', eventId: ' . $event['eventId']);
+                } catch (Throwable $e) {
+                    $this->redis->lpush('queue', [$accountId]);
+                    $this->redis->lpush('queue:' . $accountId, $event);
+                }
             }
         }
+
+        return 0;
     }
 }

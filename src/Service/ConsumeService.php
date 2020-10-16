@@ -8,6 +8,6 @@ class ConsumeService
 {
     public function processEvent(array $event): void
     {
-        //TODO:
+        sleep(1);
     }
 }
